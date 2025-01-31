@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\BulkQrJob;
+use App\Models\QrDocument;
 use ZipArchive;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -73,9 +74,20 @@ class BulkQrController extends BaseController
                     $file->move($processDir . '/original', $originalName);
 
                     // Generate QR Code
-                    $pdfUrl = base_url('uploads/bulk/' . $jobName . '/final/' . $finalPdfName);
+                    $pdfUrl = 'uploads/bulk/' . $jobName . '/final/' . $finalPdfName;
+
+                    // baca PDF
+
+                    $qrDocumentModel = new QrDocument();
+                    $qrDocumentModel->insert([
+                        'title' => $finalPdfName,
+                        'description' => '',
+                        'pdf_file' => $pdfUrl,
+                        'qr_code' => $qrCodeName,
+                    ]);
+
                     $writer = new PngWriter();
-                    $qrCode = new QrCode(base_url('/captcha?nexUrl=') . base_url($pdfUrl));
+                    $qrCode = new QrCode(base_url('view-file/' . $finalPdfName . '/download'));
                     $qrCode->setSize(300)->setMargin(10);
                     $result = $writer->write($qrCode);
                     $result->saveToFile($processDir . '/qrcodes/' . $qrCodeName);
@@ -99,7 +111,7 @@ class BulkQrController extends BaseController
         $zipName = $jobName . '.zip';
         $zipPath = FCPATH . 'uploads/bulk/' . $zipName;
         $zip = new ZipArchive();
-        
+
         if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
             $finalFiles = glob($processDir . '/final/*');
             foreach ($finalFiles as $file) {
@@ -128,8 +140,6 @@ class BulkQrController extends BaseController
         return $this->response->download($zipPath, null);
     }
 
-
-    
     private function createPdfWithQrCode($originalPdfPath, $qrCodePath, $outputPath)
     {
         try {
@@ -153,4 +163,4 @@ class BulkQrController extends BaseController
             return false;
         }
     }
-} 
+}

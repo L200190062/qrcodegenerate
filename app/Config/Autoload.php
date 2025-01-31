@@ -77,7 +77,9 @@ class Autoload extends AutoloadConfig
      *
      * @var list<string>
      */
-    public $files = [];
+    public $files = [
+        APPPATH . 'Helpers/captcha_helper.php',
+    ];
 
     /**
      * -------------------------------------------------------------------
@@ -90,5 +92,5 @@ class Autoload extends AutoloadConfig
      *
      * @var list<string>
      */
-    public $helpers = [];
+    public $helpers = ['captcha'];
 }
