@@ -15,11 +15,16 @@ $routes->group('bulk-qr', function ($routes) {
     $routes->get('create', 'BulkQrController::create');
     $routes->post('process', 'BulkQrController::process');
     $routes->get('download/(:num)', 'BulkQrController::download/$1');
+    $routes->get('view/(:num)', 'BulkQrController::view/$1');
     $routes->get('verify-captcha/(:any)', 'CaptchaController::index/$1');
     $routes->post('verify-captcha', 'CaptchaController::verify');
 });
 
 $routes->get('view-file/(:any)/download', 'ViewFileController::download/$1');
+$routes->get('view-file/(:any)', 'ViewFileController::index/$1');
 
 $routes->get('captcha-verify', 'CaptchaVerifyController::index');
 $routes->post('captcha-verify/verify', 'CaptchaVerifyController::verify');
+
+$routes->get('pdf-parser/(:any)', 'BulkQrController::getNimFromPdf/$1');
+

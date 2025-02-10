@@ -9,6 +9,7 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
+use Smalot\PdfParser\Parser;
 
 class BulkQrController extends BaseController
 {
@@ -77,9 +78,12 @@ class BulkQrController extends BaseController
                     $pdfUrl = 'uploads/bulk/' . $jobName . '/final/' . $finalPdfName;
 
                     // baca PDF
+                    $nim = $this->getNimFromPdf($processDir . '/original/' . $originalName);
 
                     $qrDocumentModel = new QrDocument();
                     $qrDocumentModel->insert([
+                        'job_id' => $jobId,
+                        'nim' => $nim,
                         'title' => $finalPdfName,
                         'description' => '',
                         'pdf_file' => $pdfUrl,
@@ -87,7 +91,7 @@ class BulkQrController extends BaseController
                     ]);
 
                     $writer = new PngWriter();
-                    $qrCode = new QrCode(base_url('view-file/' . $finalPdfName . '/download'));
+                    $qrCode = new QrCode(base_url('view-file/' . $finalPdfName));
                     $qrCode->setSize(300)->setMargin(10);
                     $result = $writer->write($qrCode);
                     $result->saveToFile($processDir . '/qrcodes/' . $qrCodeName);
@@ -138,6 +142,33 @@ class BulkQrController extends BaseController
 
         $zipPath = FCPATH . 'uploads/bulk/' . $job['zip_file'];
         return $this->response->download($zipPath, null);
+    }
+    public function view($id)
+    {
+        $qrdocumentmodel = new QrDocument();
+        $qr_documents = $qrdocumentmodel->where('job_id', $id)->find();
+        if (!$qr_documents) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        $data['qr_documents'] = $qr_documents;
+        return view('bulk_qr/view', $data);
+    }
+
+    public function getNimFromPdf($path)
+    {
+
+        $path = "http://localhost:8080/uploads/bulk/Job_20250210094117/final/with_qr_1739180477_9755ff42c783d98fc24a.pdf";
+
+        $parser = new Parser();
+        $pdf = $parser->parseFile($path);
+
+        var_dump($pdf);
+        die;
+
+        $text = $pdf->getText();
+        echo $text;
+
     }
 
     private function createPdfWithQrCode($originalPdfPath, $qrCodePath, $outputPath)

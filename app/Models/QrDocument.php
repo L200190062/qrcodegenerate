@@ -12,7 +12,7 @@ class QrDocument extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['title', 'description', 'pdf_file', 'qr_code'];
+    protected $allowedFields    = ['job_id','title', 'description', 'pdf_file', 'qr_code'];
 
     // Dates
     protected $useTimestamps = true;

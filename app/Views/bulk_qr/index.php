@@ -47,6 +47,8 @@
                         <?php if ($job['status'] === 'completed' && $job['zip_file']): ?>
                             <a href="<?= base_url('bulk-qr/download/' . $job['id']) ?>" 
                                class="btn btn-success btn-sm">Download ZIP</a>
+                            <a href="<?= base_url('bulk-qr/view/' . $job['id']) ?>" 
+                               class="btn btn-success btn-sm">View ZIP</a>
                         <?php endif; ?>
                     </td>
                 </tr>
