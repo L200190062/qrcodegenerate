@@ -25,6 +25,3 @@ $routes->get('view-file/(:any)', 'ViewFileController::index/$1');
 
 $routes->get('captcha-verify', 'CaptchaVerifyController::index');
 $routes->post('captcha-verify/verify', 'CaptchaVerifyController::verify');
-
-$routes->get('pdf-parser/(:any)', 'BulkQrController::getNimFromPdf/$1');
-

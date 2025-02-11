@@ -25,6 +25,10 @@ class CreateQrDocuments extends Migration
                 'type'       => 'VARCHAR',
                 'constraint' => 255,
             ],
+            'nim' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 255,
+            ],
             'description' => [
                 'type' => 'TEXT',
                 'null' => true,
@@ -46,7 +50,7 @@ class CreateQrDocuments extends Migration
                 'null' => true,
             ],
         ]);
-        
+
         $this->forge->addKey('id', true);
         $this->forge->addForeignKey('job_id', 'bulk_qr_jobs', 'id', 'CASCADE', 'CASCADE', 'qr_documents_job_id_foreign');
         $this->forge->createTable('qr_documents');

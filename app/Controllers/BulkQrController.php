@@ -4,6 +4,8 @@ namespace App\Controllers;
 
 use App\Models\BulkQrJob;
 use App\Models\QrDocument;
+use CodeIgniter\Log\Exceptions\LogException;
+use CodeIgniter\Log\Logger;
 use ZipArchive;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -71,14 +73,16 @@ class BulkQrController extends BaseController
                     $finalPdfName = 'with_qr_' . $originalName;
                     $qrCodeName = 'qr_' . uniqid() . '.png';
 
+                    // Baca Nim Dari PDF
+                    $nim = $this->getNimFromPdf($file);
+
                     // Move uploaded file
                     $file->move($processDir . '/original', $originalName);
 
                     // Generate QR Code
                     $pdfUrl = 'uploads/bulk/' . $jobName . '/final/' . $finalPdfName;
 
-                    // baca PDF
-                    $nim = $this->getNimFromPdf($processDir . '/original/' . $originalName);
+                    log_message('info', 'Result NIM: ' . $nim);
 
                     $qrDocumentModel = new QrDocument();
                     $qrDocumentModel->insert([
@@ -157,18 +161,20 @@ class BulkQrController extends BaseController
 
     public function getNimFromPdf($path)
     {
+        log_message('error', "PDF PATH : " . $path);
 
-        $path = "http://localhost:8080/uploads/bulk/Job_20250210094117/final/with_qr_1739180477_9755ff42c783d98fc24a.pdf";
+        try {
+            $parser = new Parser();
+            $pdf = $parser->parseFile($path);
+            $text = $pdf->getText();
 
-        $parser = new Parser();
-        $pdf = $parser->parseFile($path);
+            preg_match('/NIM : \s*(\d+)/', $text, $matches);
 
-        var_dump($pdf);
-        die;
-
-        $text = $pdf->getText();
-        echo $text;
-
+            return !empty($matches[1]) ? $matches[1] : false;
+        } catch (\Exception $e) {
+            log_message('error', 'Error extracting NIM: ' . $e->getMessage());
+            return false;
+        }
     }
 
     private function createPdfWithQrCode($originalPdfPath, $qrCodePath, $outputPath)

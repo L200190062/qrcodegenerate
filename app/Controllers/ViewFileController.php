@@ -5,8 +5,6 @@ namespace App\Controllers;
 use App\Controllers\BaseController;
 use App\Models\QrDocument;
 use App\Models\UMhsDetail;
-use CodeIgniter\HTTP\ResponseInterface;
-use Config\Session;
 
 class ViewFileController extends BaseController
 {
@@ -24,14 +22,14 @@ class ViewFileController extends BaseController
         //$session->set('captcha_verified', false);
 
         $qrDocument = new QrDocument();
-        $uMhsDetail = new UMhsDetail();
+        // $uMhsDetail = new UMhsDetail();
 
         $qrDocument = $qrDocument->where('title', $key)->first();
 
-        $data = $uMhsDetail->where('nim', $qrDocument['nim'])->first();
+        // $data = $uMhsDetail->where('nim', $qrDocument['nim'])->first();
 
-        var_dump($data);
-        die;
+        var_dump($qrDocument['nim']);
+        // die;
 
         $dataMahasiswa = [
             'nama' => 'Jhon Doe',
