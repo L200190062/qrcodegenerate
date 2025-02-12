@@ -103,28 +103,28 @@ class Database extends Config
     //     *
     //     * @var array<string, mixed>
     //     */
-    // public array $dbo = [
-    //     'dsn' => 'Driver={SQL Server Native Client 10.0};Server=10.3.11.42;Database=sia;',
-    //     'hostname' => '10.3.11.42',
-    //     'username' => 'wuryanto',
-    //     'password' => 'baa@ums1214',
-    //     'database' => 'DUMS',
-    //     'schema' => 'dbo',
-    //     'DBDriver' => 'SQLSRV',
-    //     'DBPrefix' => '',
-    //     'pConnect' => false,
-    //     'DBDebug' => true,
-    //     'charset' => 'utf8',
-    //     'swapPre' => '',
-    //     'encrypt' => false,
-    //     'failover' => [],
-    //     'port' => 1433,
-    //     'dateFormat' => [
-    //         'date' => 'Y-m-d',
-    //         'datetime' => 'Y-m-d H:i:s',
-    //         'time' => 'H:i:s',
-    //     ],
-    // ];
+    public array $dbo = [
+        'dsn' => 'Driver={SQL Server Native Client 10.0};Server=10.3.11.42;Database=sia;',
+        'hostname' => '10.3.11.42',
+        'username' => 'wuryanto',
+        'password' => 'baa@ums1214',
+        'database' => 'DUMS',
+        'schema' => 'dbo',
+        'DBDriver' => 'SQLSRV',
+        'DBPrefix' => '',
+        'pConnect' => false,
+        'DBDebug' => true,
+        'charset' => 'utf8',
+        'swapPre' => '',
+        'encrypt' => false,
+        'failover' => [],
+        'port' => 1433,
+        'dateFormat' => [
+            'date' => 'Y-m-d',
+            'datetime' => 'Y-m-d H:i:s',
+            'time' => 'H:i:s',
+        ],
+    ];
 
     //    /**
     //     * Sample database connection for OCI8.

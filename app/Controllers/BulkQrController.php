@@ -168,7 +168,7 @@ class BulkQrController extends BaseController
             $pdf = $parser->parseFile($path);
             $text = $pdf->getText();
 
-            preg_match('/NIM : \s*(\d+)/', $text, $matches);
+            preg_match('/NIM \s*([\w]+)/', $text, $matches);
 
             return !empty($matches[1]) ? $matches[1] : false;
         } catch (\Exception $e) {

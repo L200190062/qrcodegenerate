@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Controllers\BaseController;
 use App\Models\QrDocument;
 use App\Models\UMhsDetail;
+use CodeIgniter\I18n\Time;
 
 class ViewFileController extends BaseController
 {
@@ -14,28 +15,32 @@ class ViewFileController extends BaseController
     public function __construct()
     {
         $this->qr_document_model = new QrDocument();
+
     }
+
 
     public function index($key)
     {
-        // $session = Session();
-        //$session->set('captcha_verified', false);
+        $session = Session();
+        $session->set('captcha_verified', false);
 
         $qrDocument = new QrDocument();
-        // $uMhsDetail = new UMhsDetail();
+        $uMhsDetail = new UMhsDetail();
 
         $qrDocument = $qrDocument->where('title', $key)->first();
 
-        // $data = $uMhsDetail->where('nim', $qrDocument['nim'])->first();
+        $data = $uMhsDetail->where('fnim', $qrDocument['nim'])->first();
 
-        var_dump($qrDocument['nim']);
+        // var_dump($data['FNAMA']);
         // die;
 
+        $tgllahir = new Time($data['FTGLLAHIR'], 'Asia/Jakarta', 'id_ID');
+
         $dataMahasiswa = [
-            'nama' => 'Jhon Doe',
-            'nim' => 2213443,
-            'ttl' => 'Bandung, 01 Januari 2000',
-            'tanggal_lulus' => '01 Januari 2022'
+            'nama' => $data['FNAMA'],
+            'nim' => $data['FNIM'],
+            'ttl' => $data['FTMPLAHIR'] . ', ' . $tgllahir,
+            'tanggal_lulus' => date('d F Y', strtotime($data['TG_LULUS']))
         ];
 
         $file = $this->qr_document_model->where('title', $key)->find();
