@@ -25,3 +25,9 @@ $routes->get('view-file/(:any)', 'ViewFileController::index/$1');
 
 $routes->get('captcha-verify', 'CaptchaVerifyController::index');
 $routes->post('captcha-verify/verify', 'CaptchaVerifyController::verify');
+
+$routes->get('/generate-certificate', 'GenerateCertificateController::index');
+
+$routes->group('mahasiswa', function ($routes) {
+    $routes->get('/', 'Mahasiswa\DashboardController::index');
+});
