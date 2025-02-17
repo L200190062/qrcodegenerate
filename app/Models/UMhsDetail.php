@@ -127,4 +127,9 @@ class UMhsDetail extends Model
     protected $afterFind = [];
     protected $beforeDelete = [];
     protected $afterDelete = [];
+
+    public function findByNIM($nim)
+    {
+        return $this->where('FNIM', $nim)->first();
+    }
 }

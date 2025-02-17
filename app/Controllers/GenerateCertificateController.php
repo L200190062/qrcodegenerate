@@ -4,54 +4,86 @@ namespace App\Controllers;
 
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
-use setasign\Fpdi\PdfParser\StreamReader;
+use setasign\Fpdi\TcpdfFpdi;
+use CodeIgniter\HTTP\ResponseInterface;
+use CodeIgniter\Exceptions\PageNotFoundException;
 
 class GenerateCertificateController extends BaseController
 {
+
+    protected $auth;
+
+    public function __construct()
+    {
+        $this->auth = service('auth');
+    }
+
     public function index()
     {
+
         $dataMahasiswa = [
-            'nim' => 'L200190062',
-            'nama' => 'JIHAN MUSTIKASARI',
+            'nim'     => $this->auth->getUser()['nim'],
+            'nama'    => 'JIHAN MUSTIKASARI',
             'program' => 'Sarjana',
-            'prodi' => 'Teknik Informatika'
+            'prodi'   => 'Teknik Informatika'
         ];
 
         $templatePath = FCPATH . 'templates/template.pdf';
-        $file = new \CodeIgniter\Files\File($templatePath);
+        if (!is_file($templatePath)) {
+            throw new PageNotFoundException('Template PDF tidak ditemukan.');
+        }
 
         $qrCodePath = $this->generateQrCode($dataMahasiswa['nim']);
+        if (!$qrCodePath) {
+            return $this->response->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR, 'Gagal membuat QR Code.');
+        }
 
-        var_dump($qrCodePath);
+        $certificateUrl = $this->generateCertificate($templatePath, $qrCodePath, $dataMahasiswa);
+        if (!$certificateUrl) {
+            return $this->response->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR, 'Gagal membuat sertifikat.');
+        }
 
-        $certificatePath = $this->generateCertificate($file->getRealPath(), $qrCodePath, $dataMahasiswa);
-
-        return $certificatePath;
+        return $this->response->setJSON(['certificate_path' => $certificateUrl]);
     }
 
     private function generateQrCode($nim)
     {
-        $qrCodeName = 'qr_' . uniqid() . '.png';
+        $qrDir = FCPATH . 'qrcodes/';
+        if (!is_dir($qrDir)) {
+            mkdir($qrDir, 0755, true);
+        }
 
-        $writer = new PngWriter();
-        $qrCode = new QrCode(base_url('view-file/' . $nim));
-        $qrCode->setSize(300)->setMargin(10);
-        $result = $writer->write($qrCode);
+        $qrCodeName = 'qr_' . md5($nim . time()) . '.png';
+        $qrOutputPath = $qrDir . $qrCodeName;
+        $qrCodeUrl = base_url('qrcodes/' . $qrCodeName);
 
-        $qrOutputName = WRITEPATH . 'qrcodes/' . $qrCodeName;
-        $result->saveToFile($qrOutputName);
+        try {
+            $writer = new PngWriter();
+            $qrCode = new QrCode(base_url('view-file/' . $nim));
+            $qrCode->setSize(300)->setMargin(10);
+            $result = $writer->write($qrCode);
+            $result->saveToFile($qrOutputPath);
 
-        return $qrOutputName;
+            return $qrOutputPath;
+        } catch (\Exception $e) {
+            log_message('error', 'Error creating QR Code: ' . $e->getMessage());
+            return false;
+        }
     }
 
     private function generateCertificate($pdfPath, $qrCodePath, $dataMahasiswa)
     {
-        $outputPath = WRITEPATH . 'certificates/' . $dataMahasiswa['nim'] . '.pdf';
+        $certDir = FCPATH . 'certificates/';
+        if (!is_dir($certDir)) {
+            mkdir($certDir, 0755, true);
+        }
+
+        $outputFilename = $dataMahasiswa['nim'] . '.pdf';
+        $outputPath = $certDir . $outputFilename;
+        $certificateUrl = base_url('certificates/' . $outputFilename);
 
         try {
-            $pdf = new \setasign\Fpdi\TcpdfFpdi();
-            $pdfPath = StreamReader::createByFile($pdfPath);
-
+            $pdf = new TcpdfFpdi();
             $templateId = $pdf->setSourceFile($pdfPath);
             $templateId = $pdf->importPage(1);
             $size = $pdf->getTemplateSize($templateId);
@@ -59,33 +91,28 @@ class GenerateCertificateController extends BaseController
             $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
             $pdf->useTemplate($templateId);
 
-            $qrSize = 15;
+            $qrSize = 20;
             $qrX = ($size['width'] * 0.6) - ($qrSize / 2);
             $qrY = ($size['height'] * 0.825) - ($qrSize / 2);
             $pdf->Image($qrCodePath, $qrX, $qrY, $qrSize);
 
-            $pdf->SetFont('Times', 'B', 16.5);
-
-            $pdf->SetXY(137, 86);
-            $pdf->Write(0, $dataMahasiswa['nim']);
-
             $pdf->SetFont('Times', 'B', 18);
-            $pdf->SetXY(112, 75);
-            $pdf->Write(0, $dataMahasiswa['nama']);
-
-            $pdf->SetFont('Times', 'B', 18);
-
-            $pdf->SetXY(110, 113);
-            $pdf->Write(0, $dataMahasiswa['program']);
-
-            $pdf->SetXY(184, 113);
-            $pdf->Write(0, $dataMahasiswa['prodi']);
+            $this->writeText($pdf, 137, 86, $dataMahasiswa['nim']);
+            $this->writeText($pdf, 112, 75, $dataMahasiswa['nama']);
+            $this->writeText($pdf, 110, 113, $dataMahasiswa['program']);
+            $this->writeText($pdf, 184, 113, $dataMahasiswa['prodi']);
 
             $pdf->Output($outputPath, 'F');
-            return $outputPath;
+            return $certificateUrl;
         } catch (\Exception $e) {
             log_message('error', 'Error creating PDF: ' . $e->getMessage());
             return false;
         }
+    }
+
+    private function writeText($pdf, $x, $y, $text)
+    {
+        $pdf->SetXY($x, $y);
+        $pdf->Write(0, $text);
     }
 }

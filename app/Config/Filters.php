@@ -35,6 +35,8 @@ class Filters extends BaseFilters
         'pagecache'     => PageCache::class,
         'performance'   => PerformanceMetrics::class,
         'captcha'       => \App\Filters\CaptchaFilter::class,
+        'auth' => \App\Filters\AuthFilter::class,
+        'guest' => \App\Filters\RedirectIfAuthenticated::class,
     ];
 
     /**
@@ -107,5 +109,7 @@ class Filters extends BaseFilters
      */
     public array $filters = [
         'captcha' => ['before' => ['view-file/*']],
+        'auth'  => ['before' => ['mahasiswa*']],
+        'guest' => ['before' => ['auth*']],
     ];
 }

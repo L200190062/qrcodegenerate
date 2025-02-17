@@ -31,3 +31,16 @@ $routes->get('/generate-certificate', 'GenerateCertificateController::index');
 $routes->group('mahasiswa', function ($routes) {
     $routes->get('/', 'Mahasiswa\DashboardController::index');
 });
+
+
+// AUTH
+$routes->group('auth', function ($routes) {
+    $routes->get('', 'AuthController::login');
+    $routes->get('login', 'AuthController::login');
+    $routes->post('check-login', 'AuthController::checkLogin');
+    $routes->get('set-password', 'AuthController::setPassword');
+    $routes->post('save-password', 'AuthController::savePassword');
+    $routes->get('login-password', 'AuthController::loginWithPassword');
+    $routes->post('process-login', 'AuthController::processLogin');
+    $routes->get('logout', 'AuthController::logout');
+});
