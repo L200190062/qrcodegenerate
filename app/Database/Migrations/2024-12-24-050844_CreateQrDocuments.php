@@ -16,11 +16,6 @@ class CreateQrDocuments extends Migration
                 'unsigned'       => true,
                 'auto_increment' => true,
             ],
-            'job_id' => [
-                'type'           => 'INT',
-                'constraint'     => 11,
-                'unsigned'       => true,
-            ],
             'title' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 255,
@@ -52,7 +47,6 @@ class CreateQrDocuments extends Migration
         ]);
 
         $this->forge->addKey('id', true);
-        $this->forge->addForeignKey('job_id', 'bulk_qr_jobs', 'id', 'CASCADE', 'CASCADE', 'qr_documents_job_id_foreign');
         $this->forge->createTable('qr_documents');
     }
 

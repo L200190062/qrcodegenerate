@@ -137,7 +137,6 @@ class GenerateCertificateController extends BaseController
 
             $qrDocumentModel = new \App\Models\QrDocument();
             $qrDocumentModel->insert([
-                'job_id'      => uniqid(),
                 'title'       => 'Sertifikat ' . $dataMahasiswa['nama'],
                 'nim'         => $dataMahasiswa['nim'],
                 'description' => 'Sertifikat kelulusan untuk ' . $dataMahasiswa['nama'],
