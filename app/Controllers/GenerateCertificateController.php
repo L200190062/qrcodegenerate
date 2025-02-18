@@ -134,6 +134,17 @@ class GenerateCertificateController extends BaseController
             );
 
             $pdf->Output($outputPath, 'F');
+
+            $qrDocumentModel = new \App\Models\QrDocument();
+            $qrDocumentModel->insert([
+                'job_id'      => uniqid(),
+                'title'       => 'Sertifikat ' . $dataMahasiswa['nama'],
+                'nim'         => $dataMahasiswa['nim'],
+                'description' => 'Sertifikat kelulusan untuk ' . $dataMahasiswa['nama'],
+                'pdf_file'    => 'certificates/' . $outputFilename,
+                'qr_code'     => 'qrcodes/' . basename($qrCodePath),
+            ]);
+
             return $certificateUrl;
         } catch (\Exception $e) {
             log_message('error', 'Error creating PDF: ' . $e->getMessage());
