@@ -34,6 +34,16 @@ class AuthController extends Controller
             return redirect()->back()->with('error', 'NIM tidak ditemukan di database mahasiswa.');
         }
 
+
+        // !strpos(strtolower($mhs['FPredikatLulus']), 'cumlaude')
+
+        $pujian = $mhs['FPredikatLulus'];
+        $pujianLowerCase = strtolower($pujian);
+
+        if (!strpos($pujianLowerCase, 'cumlaude')) {
+            return redirect()->to('/auth/login')->with('error', 'Anda Tidak Cumlaude');
+        }
+
         if (!$user) {
             $userModel->insert([
                 'nim' => $mhs['FNIM'],
@@ -44,8 +54,11 @@ class AuthController extends Controller
             session()->set('nim', $nim);
             return redirect()->to('/auth/set-password');
         }
-
-        return redirect()->to('/auth/login-password');
+        if ($user['password']) {
+            return redirect()->to('/auth/login-password');
+        }
+        session()->set('nim', $nim);
+        return redirect()->to('/auth/set-password');
     }
 
     public function setPassword()

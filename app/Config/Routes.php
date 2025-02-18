@@ -42,5 +42,6 @@ $routes->group('auth', function ($routes) {
     $routes->post('save-password', 'AuthController::savePassword');
     $routes->get('login-password', 'AuthController::loginWithPassword');
     $routes->post('process-login', 'AuthController::processLogin');
-    $routes->get('logout', 'AuthController::logout');
+
 });
+$routes->post('logout', 'AuthController::logout');

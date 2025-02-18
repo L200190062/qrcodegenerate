@@ -22,10 +22,10 @@ class GenerateCertificateController extends BaseController
     {
 
         $dataMahasiswa = [
-            'nim'     => $this->auth->getUser()['nim'],
-            'nama'    => 'JIHAN MUSTIKASARI',
+            'nim' => $this->auth->getUser()['nim'],
+            'nama' => 'JIHAN MUSTIKASARI',
             'program' => 'Sarjana',
-            'prodi'   => 'Teknik Informatika'
+            'prodi' => 'Teknik Informatika'
         ];
 
         $templatePath = FCPATH . 'templates/template.pdf';
@@ -42,8 +42,7 @@ class GenerateCertificateController extends BaseController
         if (!$certificateUrl) {
             return $this->response->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR, 'Gagal membuat sertifikat.');
         }
-
-        return $this->response->setJSON(['certificate_path' => $certificateUrl]);
+        return redirect()->to($certificateUrl);
     }
 
     private function generateQrCode($nim)
@@ -92,15 +91,47 @@ class GenerateCertificateController extends BaseController
             $pdf->useTemplate($templateId);
 
             $qrSize = 20;
-            $qrX = ($size['width'] * 0.6) - ($qrSize / 2);
-            $qrY = ($size['height'] * 0.825) - ($qrSize / 2);
+            $qrX = ($size['width'] * 0.65) - ($qrSize / 2);
+            $qrY = ($size['height'] * 0.83) - ($qrSize / 2);
             $pdf->Image($qrCodePath, $qrX, $qrY, $qrSize);
 
             $pdf->SetFont('Times', 'B', 18);
-            $this->writeText($pdf, 137, 86, $dataMahasiswa['nim']);
-            $this->writeText($pdf, 112, 75, $dataMahasiswa['nama']);
-            $this->writeText($pdf, 110, 113, $dataMahasiswa['program']);
-            $this->writeText($pdf, 184, 113, $dataMahasiswa['prodi']);
+
+            $datasertifikat = [
+                'nim' => '(NIM ' . $dataMahasiswa['nim'] . ')',
+                'nama' => $dataMahasiswa['nama'],
+                'program' => 'Program ' . $dataMahasiswa['program'] . ', Program Studi ' . $dataMahasiswa['prodi'],
+                'pujian' => 'Dengan pujian (CUMLAUDE)',
+            ];
+
+            $this->writeText(
+                $pdf,
+                ($size['width'] * 0.49) - ($pdf->GetStringWidth($datasertifikat['nim']) / 2),
+                $size['height'] * 0.4,
+                $datasertifikat['nim']
+            );
+
+            $this->writeText($pdf, 112, 75, $datasertifikat['nama']);
+
+            $this->writeText(
+                $pdf,
+                ($size['width'] * 0.5) - ($pdf->GetStringWidth($datasertifikat['program']) / 2),
+                $size['height'] * 0.53,
+                $datasertifikat['program']
+            );
+            $this->writeText(
+                $pdf,
+                ($size['width'] * 0.5) - ($pdf->GetStringWidth($datasertifikat['program']) / 2),
+                $size['height'] * 0.53,
+                $datasertifikat['program']
+            );
+            $pdf->SetFont('Times', 'I', 18);
+            $this->writeText(
+                $pdf,
+                ($size['width'] * 0.49) - ($pdf->GetStringWidth($datasertifikat['pujian']) / 2),
+                $size['height'] * 0.65,
+                $datasertifikat['pujian']
+            );
 
             $pdf->Output($outputPath, 'F');
             return $certificateUrl;
